@@ -3,25 +3,25 @@
 #include <unordered_map>
 using namespace std;
 
-enum class VehicleType {Car, Motorcycle, Truck};
-
 class Vehicle{
     private:
-        VehicleType type;
         string number;   // Car number for identification
         bool incoming;   // Is it incoming or outgoing
         int time;   //Time of Entry or Exit to aid the concurreny issue or wait list.
+        string type;    
     public:
-        Vehicle(string number, bool incoming, int time){
+        Vehicle(string number, bool incoming, int time, string type){
             this->number = number;
             this->incoming = incoming;
             this->time = time;
+            this->type = type;
         }
 
         // To get the Values of Car Incoming/ Outgoing
         string getNumber(){ return number; }
         int getTime(){ return time; }
         bool getIncoming(){ return incoming; }
+        string getType(){ return type; }
 
         // To set the Values of Car Incoming/ Outgoing
         void setNumber(string str){ number = str; }
@@ -30,8 +30,22 @@ class Vehicle{
 
 };
 
+class GenerateTicket{
+    private:
+        int ticketNum;
+    public:
+        GenerateTicket(){
+            this->ticketNum = 0;
+        }
 
-class ParkingLot{
+        void setTicket(int i, int j){
+            ticketNum++;
+            cout << "Your ticket number is" << " " << ticketNum << endl; 
+            cout << "Your Spot is : " << i << "th Floor & " << j << "th Number" << endl;
+        }
+};
+
+class ParkingLot : GenerateTicket{
     private:
         vector<vector<Vehicle*>> lot;   //hashtable storing the car Space
         unordered_map<string, pair<int,int>> vehicleToSpot;
@@ -41,13 +55,15 @@ class ParkingLot{
             lot = vector<vector<Vehicle*>>(levels, vector<Vehicle*>(slotsPL, nullptr));
         }
         
-        bool assignSpot(Vehicle* v, VehicleType type){
+        bool assignSpot(Vehicle* v){
             int start, end;
+            
+            string type = v->getType();
 
-            if(type == VehicleType::Car) {
+            if(type == "Car") {
                 start = 0; end = 49;
             }
-            else if(type == VehicleType::Motorcycle) {
+            else if(type == "Motorcycle") {
                 start = 50; end = 89;
             }
             else{
@@ -59,6 +75,7 @@ class ParkingLot{
                     if(lot[level][i] == nullptr){
                         lot[level][i] = v;
                         vehicleToSpot[v->getNumber()] = {level, i};  // Mapping for future release and lookout
+                        setTicket(level, i);
                         return true;
                     }
                 }
@@ -84,11 +101,23 @@ class ParkingLot{
 
 int main(){
     ParkingLot P1(10, 100);
-    Vehicle* V1 = new Vehicle("CH1101", true, 0);
-    Vehicle* V2 = new Vehicle("CH1102", true, 0);
+    GenerateTicket G1;
 
-    P1.assignSpot(V1, VehicleType::Car);
-    P1.assignSpot(V2, VehicleType::Truck);
+    Vehicle* V1 = new Vehicle("CH1101", true, 0, "Car");
+    Vehicle* V2 = new Vehicle("CH1102", true, 0, "Car");
+    Vehicle* V3 = new Vehicle("CH1103", true, 0, "Truck");
+    Vehicle* V4 = new Vehicle("CH1104", true, 0, "Truck");
+    Vehicle* V5 = new Vehicle("CH1105", true, 0, "Motorcycle");
+    Vehicle* V6 = new Vehicle("CH1106", true, 0, "Car");
+    Vehicle* V7 = new Vehicle("CH1107", true, 0, "Motorcycle");
+
+    P1.assignSpot(V1);
+    P1.assignSpot(V2);
+    P1.assignSpot(V3);
+    P1.assignSpot(V4);
+    P1.assignSpot(V5);
+    P1.assignSpot(V6);
+    P1.assignSpot(V7);
 
     P1.releaseSpot(V1);
 
